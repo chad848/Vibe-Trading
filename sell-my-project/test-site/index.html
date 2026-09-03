@@ -1,0 +1,984 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sell My Project Test Site</title>
+</head>
+<body>
+<title>Sell My Project Test Site</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<style>
+  /* Palette verbatim from smp-web/app/globals.css (:root and .dark). */
+  :root {
+    --bg: #efe9e0;
+    --surface: #ffffff;
+    --surface-2: #f3efe8;
+    --surface-3: #e8e2d8;
+    --border: #ddd5c8;
+    --border-bright: #c9bfb0;
+    --ink: #1a1612;
+    --ink-soft: #3d362d;
+    --muted: #6b5f50;
+    --spark: #e04e0c;
+    --spark-bright: #ff5c1f;
+    --unlock: #166534;
+    --plate: #f6efdd;
+    --sold: #6b5f50;
+    --shadow: 0 10px 28px rgba(26,22,18,.12);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0a0907; --surface: #1a1612; --surface-2: #221d17; --surface-3: #2a241d;
+      --border: #2d2823; --border-bright: #3d362d; --ink: #f5efe7; --ink-soft: #d9cfc1;
+      --muted: #b5a690; --spark: #ff5c1f; --spark-bright: #ff7a3f; --unlock: #16a34a;
+      --plate: #26211a; --sold: #b5a690; --shadow: 0 10px 28px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0a0907; --surface: #1a1612; --surface-2: #221d17; --surface-3: #2a241d;
+    --border: #2d2823; --border-bright: #3d362d; --ink: #f5efe7; --ink-soft: #d9cfc1;
+    --muted: #b5a690; --spark: #ff5c1f; --spark-bright: #ff7a3f; --unlock: #16a34a;
+    --plate: #26211a; --sold: #b5a690; --shadow: 0 10px 28px rgba(0,0,0,.5);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    margin: 0; line-height: 1.5; font-size: 15px;
+  }
+  .disp {
+    font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
+    text-transform: uppercase; letter-spacing: .06em; font-weight: 700;
+  }
+  button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible, .input:focus-visible { outline: 2px solid var(--spark); outline-offset: 2px; }
+
+  /* ---- app shell ---- */
+  .app {
+    max-width: 480px; margin: 0 auto; min-height: 100dvh;
+    background: var(--surface);
+    border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+  }
+  @media (max-width: 500px) { .app { border-left: 0; border-right: 0; } }
+  .topbar {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .7rem 1rem; background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .wordmark {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .1em; font-size: .82rem;
+    border: 1.5px solid var(--ink); padding: .14rem .5rem; border-radius: 3px;
+  }
+  .testflag {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .12em; font-size: .66rem; color: var(--muted);
+    border: 1px dashed var(--border-bright); border-radius: 99px; padding: .12rem .5rem;
+  }
+  main { flex: 1; padding-bottom: 4.6rem; }
+  .screen { padding: 1rem 1rem 1.4rem; display: flex; flex-direction: column; gap: .9rem; }
+
+  /* ---- bottom nav ---- */
+  nav.tabs {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 480px; z-index: 30;
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    background: var(--surface); border-top: 1px solid var(--border);
+    padding: .35rem 0 max(.35rem, env(safe-area-inset-bottom));
+    box-sizing: border-box;
+  }
+  nav.tabs button {
+    display: flex; flex-direction: column; align-items: center; gap: .12rem;
+    color: var(--muted); padding: .25rem 0;
+    font-family: "Barlow Condensed", sans-serif; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .1em; font-size: .62rem;
+  }
+  nav.tabs button.on { color: var(--ink); }
+  nav.tabs svg { width: 21px; height: 21px; }
+
+  /* ---- shared bits ---- */
+  .photo {
+    border-radius: 10px; background:
+      radial-gradient(120% 90% at 30% 20%, transparent 40%, rgba(0,0,0,.10) 100%),
+      repeating-linear-gradient(-35deg, transparent 0 14px, rgba(127,110,90,.05) 14px 28px),
+      linear-gradient(145deg, var(--surface-3) 0%, var(--surface-2) 55%, var(--surface-3) 100%);
+    border: 1px solid var(--border);
+    position: relative; display: grid; place-items: center; color: var(--muted);
+  }
+  .photo.hero { aspect-ratio: 4/3; }
+  .photo.wide { aspect-ratio: 16/9; }
+  .photo .count {
+    position: absolute; bottom: .5rem; right: .5rem;
+    background: rgba(0,0,0,.55); color: #fff; font-size: .72rem;
+    padding: .1rem .45rem; border-radius: 99px;
+  }
+  .glyph { width: 34px; height: 34px; opacity: .55; }
+  .glyph.sm { width: 22px; height: 22px; }
+  .glyph.xs { width: 18px; height: 18px; }
+
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%; background: var(--surface-3);
+    border: 1px solid var(--border-bright); display: grid; place-items: center;
+    font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: .72rem;
+    flex: 0 0 auto;
+  }
+  .avatar.lg { width: 52px; height: 52px; font-size: 1rem; }
+
+  .btn {
+    display: block; width: 100%; text-align: center; border-radius: 8px;
+    font-family: "Barlow Condensed", sans-serif; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .08em; font-size: 1.05rem; padding: .7rem .5rem; box-sizing: border-box;
+    border: 1.5px solid transparent;
+  }
+  .btn-spark { background: var(--spark); color: #fff; }
+  .btn-ink { background: var(--ink); color: var(--bg); }
+  .btn-dark { background: var(--surface-3); color: var(--muted); border-color: var(--border-bright); cursor: not-allowed; }
+  .btn-talk { background: transparent; color: var(--ink); border-color: var(--ink); }
+  .btn-line { background: transparent; color: var(--ink); border-color: var(--border-bright); font-size: .92rem; padding: .55rem .5rem; }
+  .btn-note { font-size: .75rem; color: var(--muted); text-align: center; margin: .35rem 0 0; }
+
+  .moneyline {
+    font-size: .82rem; color: var(--muted);
+    border-left: 3px solid var(--border-bright); padding-left: .6rem;
+  }
+  .plate-line {
+    background: var(--plate); border: 1px solid var(--border);
+    border-left: 4px solid var(--spark); border-radius: 6px;
+    padding: .55rem .7rem; font-size: .85rem; font-style: italic; color: var(--ink-soft);
+  }
+  .facts { display: flex; flex-direction: column; gap: .55rem; margin: 0; }
+  .fact { border: 1px solid var(--border); border-radius: 8px; padding: .5rem .65rem; background: var(--surface-2); }
+  .fact .lbl {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .1em; font-size: .68rem; color: var(--muted); display: block;
+  }
+  .fact .val { font-size: .9rem; color: var(--ink-soft); }
+
+  .sect-h { margin: 0; font-size: 1.3rem; letter-spacing: .05em; }
+  .sect-sub { margin: -.55rem 0 0; font-size: .8rem; color: var(--muted); }
+  .money { font-variant-numeric: tabular-nums; }
+
+  .backrow { display: flex; align-items: center; gap: .4rem; margin-bottom: -.3rem; }
+  .backrow button {
+    display: inline-flex; align-items: center; gap: .3rem; color: var(--muted);
+    font-family: "Barlow Condensed", sans-serif; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .1em; font-size: .72rem;
+  }
+
+  /* ---- feed ---- */
+  .post { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); overflow: hidden; }
+  .post .head { display: flex; align-items: center; gap: .6rem; padding: .65rem .75rem .5rem; }
+  .post .head .who { flex: 1; min-width: 0; font-size: .86rem; line-height: 1.25; }
+  .post .head .who .sub { color: var(--muted); font-size: .74rem; }
+  .post .photo { border-radius: 0; border-left: 0; border-right: 0; aspect-ratio: 16/9; }
+  .post .body { padding: .6rem .75rem .75rem; display: flex; flex-direction: column; gap: .5rem; }
+  .post .body p { margin: 0; font-size: .9rem; }
+  .followbtn {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .1em; font-size: .68rem; border: 1.5px solid var(--ink); color: var(--ink);
+    border-radius: 99px; padding: .18rem .6rem; flex: 0 0 auto;
+  }
+  .followbtn.onfollow { border-color: var(--border-bright); color: var(--muted); }
+  .partchip {
+    display: inline-flex; align-items: center; gap: .4rem; align-self: flex-start;
+    border: 1px solid var(--border-bright); border-radius: 8px; padding: .3rem .55rem;
+    font-size: .78rem; background: var(--surface-2);
+  }
+  .partchip b { font-weight: 700; }
+  .feedmeta { display: flex; gap: 1rem; color: var(--muted); font-size: .76rem; }
+
+  /* ---- garage ---- */
+  .garage-cover { aspect-ratio: 3/1; border-radius: 12px; }
+  .garage-id { display: flex; align-items: center; gap: .7rem; margin-top: -1.6rem; padding-left: .4rem; }
+  .garage-id .avatar.lg { border-width: 2px; background: var(--surface-2); }
+  .garage-name { margin: .1rem 0 0; font-size: 1.5rem; letter-spacing: .05em; }
+  .garage-sub { color: var(--muted); font-size: .82rem; margin: 0; }
+  .statrow { display: flex; gap: 1.2rem; font-size: .82rem; color: var(--muted); }
+  .statrow b { color: var(--ink); font-weight: 700; }
+  .subtabs { display: flex; gap: .4rem; border-bottom: 1px solid var(--border); }
+  .subtabs button {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .1em; font-size: .78rem; color: var(--muted);
+    padding: .35rem .6rem .45rem; border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .subtabs button.on { color: var(--ink); border-bottom-color: var(--ink); }
+
+  .build-card { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--surface); }
+  .build-card .photo { border-radius: 0; border: 0; aspect-ratio: 16/9; }
+  .build-card .pad { padding: .55rem .7rem .7rem; display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; }
+  .build-card .t { margin: 0; font-size: 1.05rem; }
+  .build-card .ask { font-size: .78rem; color: var(--muted); }
+  .build-card .ask b { color: var(--ink); font-size: .95rem; }
+  .build-card .notforsale { font-size: .76rem; color: var(--muted); font-weight: 600; }
+
+  .bench-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+  .bench-card {
+    border: 1px solid var(--border); border-radius: 9px; overflow: hidden;
+    background: var(--surface); position: relative; display: block; width: 100%;
+  }
+  .bench-card .photo { border: 0; border-radius: 0; aspect-ratio: 4/3; }
+  .bench-card .pad { padding: .45rem .55rem .55rem; }
+  .bench-card .t { font-weight: 600; font-size: .82rem; line-height: 1.2; margin: 0; }
+  .bench-card .sub { font-size: .7rem; color: var(--muted); margin: .1rem 0 .2rem; }
+  .bench-card .price { font-weight: 700; font-size: .85rem; }
+  .bench-card .talk-only { font-size: .78rem; color: var(--muted); font-weight: 600; }
+  .tag-sold, .tag-pending {
+    position: absolute; top: .4rem; left: .4rem; background: var(--ink); color: var(--bg);
+    font-family: "Barlow Condensed", sans-serif; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; font-size: .62rem; padding: .1rem .4rem; border-radius: 3px; z-index: 2;
+  }
+  .tag-pending { background: var(--muted); }
+
+  /* ---- build page ---- */
+  .h-listing { margin: 0; font-size: 1.45rem; line-height: 1.05; letter-spacing: .04em; }
+  .prov { color: var(--muted); font-size: .85rem; margin: -.35rem 0 0; }
+  .prov a, .prov button { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; font-weight: 600; font-size: inherit; }
+  .ask-row { display: flex; align-items: baseline; gap: .5rem; }
+  .ask-row .lbl { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; font-family: "Barlow Condensed", sans-serif; font-weight: 600; }
+  .ask-row .amt { font-size: 1.25rem; font-weight: 700; }
+  .strip-scroll { display: flex; gap: .6rem; overflow-x: auto; padding-bottom: .25rem; }
+  .strip-card {
+    min-width: 118px; border: 1px solid var(--border); border-radius: 8px;
+    overflow: hidden; background: var(--surface); flex: 0 0 auto; position: relative;
+  }
+  .strip-card .photo { aspect-ratio: 4/3; border: 0; border-radius: 0; }
+  .strip-card .pad { padding: .35rem .45rem .45rem; }
+  .strip-card .t { font-size: .72rem; font-weight: 600; margin: 0; line-height: 1.15; }
+  .strip-card .price { font-size: .74rem; font-weight: 700; }
+  .strip-card .talk-only { font-size: .7rem; color: var(--muted); font-weight: 600; }
+  .timeline { display: flex; flex-direction: column; gap: .6rem; }
+  .tl-item { display: flex; gap: .6rem; font-size: .86rem; }
+  .tl-item .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border-bright); margin-top: .42rem; flex: 0 0 auto; }
+  .tl-item .when { color: var(--muted); font-size: .74rem; }
+  .seller-row {
+    display: flex; align-items: center; gap: .6rem; padding-top: .7rem;
+    border-top: 1px solid var(--border); font-size: .85rem;
+  }
+  .seller-row .loc { color: var(--muted); font-size: .78rem; }
+
+  /* ---- form ---- */
+  .field { display: flex; flex-direction: column; gap: .25rem; }
+  .field > label {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .1em; font-size: .7rem; color: var(--muted);
+  }
+  .input {
+    border: 1px solid var(--border-bright); border-radius: 7px; background: var(--surface);
+    padding: .5rem .6rem; font-size: .9rem; color: var(--ink); width: 100%; box-sizing: border-box;
+    font-family: inherit;
+  }
+  textarea.input { min-height: 60px; resize: vertical; }
+  .photo-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+  .tile {
+    aspect-ratio: 1; border-radius: 8px; display: grid; place-items: center;
+    background: var(--surface-2); border: 1.5px dashed var(--border-bright);
+    color: var(--muted); font-size: .72rem; width: 100%;
+  }
+  .tile.filled { border: 1px solid var(--border); border-style: solid; background:
+      linear-gradient(145deg, var(--surface-3) 0%, var(--surface-2) 55%, var(--surface-3) 100%);
+    color: var(--ink-soft); font-weight: 600; }
+  .chips { display: flex; gap: .4rem; flex-wrap: wrap; }
+  .chip {
+    border-radius: 99px; padding: .3rem .7rem; font-size: .78rem; font-weight: 600;
+    border: 1.5px solid var(--border-bright); color: var(--muted); background: var(--surface);
+  }
+  .chip.on { border-color: var(--ink); color: var(--ink); background: var(--surface-2); }
+  .chip.later { opacity: .45; cursor: not-allowed; }
+  .hint { font-size: .72rem; color: var(--muted); margin: .15rem 0 0; }
+
+  /* ---- inbox ---- */
+  .offer-card { border: 1px solid var(--border); border-radius: 10px; background: var(--surface); padding: .7rem .8rem; display: flex; flex-direction: column; gap: .5rem; }
+  .offer-card .row { display: flex; align-items: center; gap: .6rem; }
+  .offer-card .what { flex: 1; min-width: 0; font-size: .88rem; line-height: 1.3; }
+  .offer-card .what .sub { color: var(--muted); font-size: .75rem; }
+  .offer-amt { font-weight: 700; font-size: 1rem; }
+  .status-pill {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .1em; font-size: .64rem; border-radius: 99px; padding: .14rem .55rem;
+    border: 1px solid var(--border-bright); color: var(--muted); flex: 0 0 auto;
+  }
+  .status-pill.good { color: var(--unlock); border-color: var(--unlock); }
+  .offer-actions { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+  .empty { color: var(--muted); font-size: .84rem; border: 1.5px dashed var(--border-bright); border-radius: 10px; padding: .9rem; text-align: center; }
+
+  /* ---- admin ---- */
+  .previewband {
+    background: var(--plate); border: 1px solid var(--border); border-left: 4px solid var(--border-bright);
+    border-radius: 6px; padding: .55rem .7rem; font-size: .8rem; color: var(--ink-soft);
+  }
+  .admin-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+  .stat { border: 1px solid var(--border); border-radius: 9px; background: var(--surface-2); padding: .5rem .6rem; }
+  .stat .n { font-size: 1.25rem; font-weight: 700; font-family: "Barlow Condensed", sans-serif; }
+  .stat .l { font-size: .66rem; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; font-family: "Barlow Condensed", sans-serif; font-weight: 600; }
+  .qrow { display: flex; align-items: center; gap: .6rem; border: 1px solid var(--border); border-radius: 9px; padding: .55rem .65rem; background: var(--surface); font-size: .84rem; }
+  .qrow .sub { color: var(--muted); font-size: .74rem; }
+  .qrow .what { flex: 1; min-width: 0; }
+
+  /* ---- about ---- */
+  .about p { margin: 0; font-size: .9rem; }
+  .ledger { display: flex; flex-direction: column; gap: .5rem; }
+  .lrow { display: flex; gap: .6rem; align-items: baseline; font-size: .86rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+  .lrow:last-child { border-bottom: 0; }
+  .lrow .k { flex: 1; }
+  .lrow .v { color: var(--muted); font-size: .78rem; text-align: right; flex: 0 0 auto; max-width: 45%; }
+  .lrow .v.done { color: var(--unlock); font-weight: 600; }
+  .scorebox { display: flex; align-items: baseline; gap: .6rem; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); padding: .6rem .8rem; }
+  .scorebox .big { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 2rem; }
+  .scorebox .cap { color: var(--muted); font-size: .78rem; }
+
+  /* ---- sheet ---- */
+  .sheet-veil {
+    position: fixed; inset: 0; background: rgba(10,9,7,.45); z-index: 40;
+    display: flex; align-items: flex-end; justify-content: center;
+  }
+  .sheet {
+    width: 100%; max-width: 480px; background: var(--surface);
+    border-radius: 16px 16px 0 0; border: 1px solid var(--border); border-bottom: 0;
+    padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom)); box-sizing: border-box;
+    display: flex; flex-direction: column; gap: .7rem; box-shadow: var(--shadow);
+  }
+  .sheet h3 { margin: 0; font-size: 1.2rem; letter-spacing: .05em; }
+  .sheet p { margin: 0; font-size: .88rem; }
+  .talk-thread { display: flex; flex-direction: column; gap: .45rem; max-height: 40vh; overflow-y: auto; }
+  .msg { max-width: 82%; border-radius: 12px; padding: .45rem .65rem; font-size: .86rem; background: var(--surface-2); border: 1px solid var(--border); align-self: flex-start; }
+  .msg.me { align-self: flex-end; background: var(--surface-3); }
+  .msg .who { display: block; font-size: .66rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-family: "Barlow Condensed", sans-serif; font-weight: 600; }
+
+  .toast {
+    position: fixed; bottom: 5.2rem; left: 50%; transform: translateX(-50%);
+    background: var(--ink); color: var(--bg); font-size: .82rem; border-radius: 99px;
+    padding: .45rem .95rem; z-index: 50; box-shadow: var(--shadow); white-space: nowrap;
+    max-width: 92vw; overflow: hidden; text-overflow: ellipsis;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .toast { animation: toast-in .18s ease-out; }
+    @keyframes toast-in { from { opacity: 0; transform: translate(-50%, 6px); } }
+  }
+</style>
+
+<div class="app">
+  <div class="topbar">
+    <span class="wordmark">Sell My Project</span>
+    <span class="testflag">Test site</span>
+  </div>
+  <main id="main"></main>
+</div>
+
+<nav class="tabs" aria-label="Main">
+  <button data-nav="feed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>Home</button>
+  <button data-nav="garage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10l9-6 9 6v10H3z"/><path d="M7 20v-7h10v7"/><path d="M7 16h10"/></svg>Garage</button>
+  <button data-nav="sellmenu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Post</button>
+  <button data-nav="inbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18v12H3z"/><path d="M3 6l9 7 9-7"/></svg>Offers</button>
+  <button data-nav="about"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="8" r=".5" fill="currentColor"/></svg>About</button>
+</nav>
+
+<div id="overlay"></div>
+<div id="toastmount"></div>
+
+<script>
+"use strict";
+
+/* ---------- shared SVG bits ---------- */
+var WRENCH = '<svg class="glyph GC" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14.7 6.3a4.5 4.5 0 0 0-6 6L3 18l3 3 5.7-5.7a4.5 4.5 0 0 0 6-6l-3 3-3-3 3-3z"/></svg>';
+var TRUCK = '<svg class="glyph GC" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="10" width="20" height="6" rx="1.5"/><circle cx="7" cy="17.5" r="2.2"/><circle cx="17" cy="17.5" r="2.2"/><path d="M6 10l2.2-4h7.6L18 10"/></svg>';
+function glyph(kind, size) {
+  var s = kind === 'truck' ? TRUCK : WRENCH;
+  return s.replace('GC', size || '');
+}
+
+/* ---------- data (mirrors the dev rows the audit verified) ---------- */
+var DB = {
+  garages: {
+    rustyk5: { id: 'rustyk5', name: 'RustyK5', initials: 'RK', line: 'Classic Blazers & C10s', loc: 'Des Moines, Iowa', followers: 214, following: true },
+    cjshop:  { id: 'cjshop', name: "CJ's Corner Shop", initials: 'CJ', line: 'Square-body everything', loc: 'Lincoln, Nebraska', followers: 88, following: false },
+    fmw:     { id: 'fmw', name: 'FarmhandMotorWorks', initials: 'FM', line: 'LS swaps in old iron', loc: 'Ames, Iowa', followers: 143, following: false }
+  },
+  builds: {
+    blazer: { id: 'blazer', garage: 'rustyk5', title: '1972 K5 Blazer', ask: 48000, photos: 10, forSale: true,
+      story: 'Frame-off going back together. Small-block 400, NP205, one-piece glass. The tailgate came off for the trim-delete and is on the bench.',
+      updates: [
+        { when: 'This week', text: 'Tailgate off, inner skin cleaned up. It goes on the bench, not the scrap pile.' },
+        { when: '3 weeks ago', text: 'Body back on the frame. Cab mounts are new.' },
+        { when: 'June', text: 'Engine dyno day — 402 hp on pump gas.' }
+      ] },
+    k10: { id: 'k10', garage: 'rustyk5', title: '1974 K10', ask: null, photos: 6, forSale: false,
+      story: 'The parts truck that keeps giving. Not for sale — it feeds the bench.', updates: [] }
+  },
+  parts: {
+    tailgate: { id: 'tailgate', garage: 'rustyk5', build: 'blazer', title: 'K5 Tailgate, 73–87', prov: 'Came off', photos: 2,
+      included: 'Tailgate shell and hinges. No cables, no trim.',
+      condition: 'Surface rust on the inner skin. Straight, no dents.',
+      ask: 350, status: 'on_bench', chargeReady: true },
+    intake: { id: 'intake', garage: 'rustyk5', build: 'k10', title: 'LS3 intake manifold', prov: 'Came off', photos: 3,
+      included: 'Manifold and fuel rails. No injectors, no sensors.',
+      condition: 'Clean. Ran when pulled.',
+      ask: 450, status: 'on_bench', chargeReady: true },
+    seat: { id: 'seat', garage: 'rustyk5', build: 'blazer', title: 'Bench seat, needs foam', prov: 'Came off', photos: 1,
+      included: 'Frame and tracks. Foam is shot — you knew that from the title.',
+      condition: null,
+      ask: null, status: 'on_bench', chargeReady: false },
+    np205: { id: 'np205', garage: 'rustyk5', build: 'k10', title: 'NP205 transfer case', prov: 'Came off', photos: 2,
+      included: 'Case, yokes, shifter.', condition: 'Shifted fine when pulled.',
+      ask: 275, status: 'sold', chargeReady: false },
+    wheels: { id: 'wheels', garage: 'rustyk5', build: 'blazer', title: 'Stock wheels ×4', prov: 'Came off', photos: 2,
+      included: 'Four 15x8 rally wheels, center caps.', condition: 'One has curb rash.',
+      ask: 200, status: 'on_bench', chargeReady: true }
+  }
+};
+
+/* mutable session state */
+var S = {
+  screen: 'feed',
+  garageTab: 'builds',
+  myOffers: [],       // offers I made as the buyer
+  sellerOffer: { id: 'so1', part: 'intake', from: "CJ's Corner Shop", amount: 450, status: 'pending_seller' },
+  form: { photos: 0, title: '', prov: null, included: '', ask: '' },
+  benchExtra: []      // parts added through the form this session
+};
+
+/* ---------- helpers ---------- */
+function $(sel) { return document.querySelector(sel); }
+function money(n) { return '$' + n.toLocaleString('en-US'); }
+function feeCents(ask) { return Math.min(ask * 0.05, 5000); }
+function feeLabel(ask) {
+  var f = feeCents(ask);
+  return '$' + (f % 1 === 0 ? f.toLocaleString('en-US') : f.toFixed(2));
+}
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function toast(msg) {
+  var m = $('#toastmount');
+  m.innerHTML = '<div class="toast">' + esc(msg) + '</div>';
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function () { m.innerHTML = ''; }, 2600);
+}
+function go(screen) {
+  S.screen = screen;
+  render();
+  window.scrollTo(0, 0);
+}
+
+/* ---------- screen: feed ---------- */
+function feedFollowBtn(gid) {
+  var g = DB.garages[gid];
+  return '<button class="followbtn ' + (g.following ? 'onfollow' : '') + '" data-follow="' + gid + '">' +
+    (g.following ? 'Following' : 'Follow') + '</button>';
+}
+function renderFeed() {
+  var r = DB.garages.rustyk5, c = DB.garages.cjshop, f = DB.garages.fmw;
+  return '<div class="screen">' +
+    '<h2 class="sect-h disp">The garages you follow</h2>' +
+    '<p class="sect-sub">Builds first. The feed is what people are wrenching on — not a listings mall.</p>' +
+
+    '<article class="post">' +
+      '<div class="head"><span class="avatar">' + r.initials + '</span>' +
+        '<span class="who"><b>' + r.name + '</b> updated <button class="linklike" data-go="build" style="font-weight:600;text-decoration:underline;text-underline-offset:2px">1972 K5 Blazer</button>' +
+        '<br><span class="sub">This week · ' + r.loc + '</span></span>' + feedFollowBtn('rustyk5') + '</div>' +
+      '<div class="photo">' + glyph('truck') + '<span class="count">4 photos</span></div>' +
+      '<div class="body"><p>Tailgate’s off for the trim-delete. Inner skin cleaned up — it goes on the bench, not the scrap pile.</p>' +
+        '<button class="partchip" data-part="tailgate">' + glyph('wrench', 'xs') + ' On the bench: <b>K5 tailgate — ' + money(350) + '</b></button>' +
+        '<div class="feedmeta"><span>18 in the garage</span><span>6 comments</span></div></div>' +
+    '</article>' +
+
+    '<article class="post">' +
+      '<div class="head"><span class="avatar">' + f.initials + '</span>' +
+        '<span class="who"><b>' + f.name + '</b> · first start<br><span class="sub">Yesterday · ' + f.loc + '</span></span>' + feedFollowBtn('fmw') + '</div>' +
+      '<div class="photo">' + glyph('truck') + '<span class="count">video</span></div>' +
+      '<div class="body"><p>5.3 lit off on the second crank. Cam sounds angry. Wiring cleanup next weekend.</p>' +
+        '<div class="feedmeta"><span>42 in the garage</span><span>11 comments</span></div></div>' +
+    '</article>' +
+
+    '<article class="post">' +
+      '<div class="head"><span class="avatar">' + c.initials + '</span>' +
+        '<span class="who"><b>' + c.name + '</b> · shop note<br><span class="sub">2 days ago · ' + c.loc + '</span></span>' + feedFollowBtn('cjshop') + '</div>' +
+      '<div class="body" style="padding-top:.65rem"><p>Looking for a 73–87 tailgate for the customer Jimmy. If your bench has one, my Talk is open.</p>' +
+        '<div class="feedmeta"><span>3 comments</span></div></div>' +
+    '</article>' +
+
+    '<article class="post">' +
+      '<div class="head"><span class="avatar">' + r.initials + '</span>' +
+        '<span class="who"><b>' + r.name + '</b> · moved a part<br><span class="sub">Last week</span></span></div>' +
+      '<div class="body" style="padding-top:.65rem"><p>NP205 is gone — picked up at the garage, cash to the shop. The bench keeps its sold tags: proof the shop moves parts.</p>' +
+        '<button class="partchip" data-part="np205">' + glyph('wrench', 'xs') + ' <b>NP205 transfer case</b> · Sold</button></div>' +
+    '</article>' +
+  '</div>';
+}
+
+/* ---------- screen: garage ---------- */
+function benchCard(p) {
+  var tag = p.status === 'sold' ? '<span class="tag-sold">Sold</span>' :
+            p.status === 'pending' ? '<span class="tag-pending">Pending</span>' : '';
+  var priceLine = p.status === 'sold' ? '<span class="price money">' + money(p.ask) + '</span>' :
+    (p.ask ? '<span class="price money">' + money(p.ask) + '</span>' : '<span class="talk-only">Talk to the shop</span>');
+  var build = p.build ? DB.builds[p.build].title : null;
+  return '<button class="bench-card" data-part="' + p.id + '">' + tag +
+    '<span class="photo">' + glyph('wrench', 'sm') + '</span>' +
+    '<span class="pad"><p class="t">' + esc(p.title) + '</p>' +
+    '<p class="sub">' + p.prov + (build ? ' · ' + esc(build) : '') + '</p>' + priceLine + '</span></button>';
+}
+function renderGarage() {
+  var g = DB.garages.rustyk5;
+  var tab = S.garageTab;
+  var body = '';
+  if (tab === 'builds') {
+    body =
+      '<button class="build-card" data-go="build" style="width:100%">' +
+        '<span class="photo">' + glyph('truck') + '<span class="count">10 photos</span></span>' +
+        '<span class="pad"><h3 class="t disp">1972 K5 Blazer</h3><span class="ask">Ask <b class="money">' + money(48000) + '</b></span></span>' +
+      '</button>' +
+      '<div class="build-card">' +
+        '<div class="photo">' + glyph('truck') + '<span class="count">6 photos</span></div>' +
+        '<div class="pad"><h3 class="t disp">1974 K10</h3><span class="notforsale">Not for sale — feeds the bench</span></div>' +
+      '</div>';
+  } else if (tab === 'bench') {
+    var order = ['tailgate', 'intake', 'seat', 'np205', 'wheels'];
+    var cards = order.map(function (id) { return benchCard(DB.parts[id]); }).join('');
+    cards += S.benchExtra.map(function (p) { return benchCard(p); }).join('');
+    body =
+      '<p class="sect-sub" style="margin-top:0">Used take-offs from ' + g.name + '. Walk in, look around — not a parts mall.</p>' +
+      '<div class="bench-grid">' + cards + '</div>' +
+      '<button class="btn btn-line" data-go="sell">Put a part on the bench</button>';
+  } else {
+    body =
+      '<div class="facts">' +
+        '<div class="fact"><span class="lbl">The shop</span><span class="val">One-man garage. Squarebody Chevys since 2011. Everything on the bench came off something you can see here.</span></div>' +
+        '<div class="fact"><span class="lbl">Pickup</span><span class="val">At the garage — Des Moines, Iowa. Evenings and weekends.</span></div>' +
+      '</div>';
+  }
+  return '<div class="screen">' +
+    '<div class="photo garage-cover">' + glyph('truck') + '</div>' +
+    '<div class="garage-id"><span class="avatar lg">' + g.initials + '</span>' +
+      '<span style="flex:1"><h2 class="garage-name disp">' + g.name + '</h2>' +
+      '<p class="garage-sub">' + g.line + ' · ' + g.loc + '</p></span>' + feedFollowBtn('rustyk5') + '</div>' +
+    '<div class="statrow"><span><b>' + g.followers + '</b> followers</span><span><b>2</b> builds</span><span><b>1</b> part sold</span></div>' +
+    '<div class="subtabs">' +
+      '<button data-gtab="builds" class="' + (tab === 'builds' ? 'on' : '') + '">Builds</button>' +
+      '<button data-gtab="bench" class="' + (tab === 'bench' ? 'on' : '') + '">On the bench</button>' +
+      '<button data-gtab="about" class="' + (tab === 'about' ? 'on' : '') + '">The shop</button>' +
+    '</div>' + body + '</div>';
+}
+
+/* ---------- screen: build (1972 K5 Blazer) ---------- */
+function renderBuild() {
+  var b = DB.builds.blazer;
+  var strip = ['tailgate', 'seat', 'wheels'].map(function (id) {
+    var p = DB.parts[id];
+    var line = p.ask ? '<span class="price money">' + money(p.ask) + '</span>' : '<span class="talk-only">Talk</span>';
+    return '<button class="strip-card" data-part="' + id + '">' +
+      '<span class="photo">' + glyph('wrench', 'xs') + '</span>' +
+      '<span class="pad"><p class="t">' + esc(p.title) + '</p>' + line + '</span></button>';
+  }).join('');
+  var mine = S.myOffers.filter(function (o) { return o.kind === 'build'; })[0];
+  var closer = mine ?
+    '<button class="btn btn-dark" disabled>Offer in — waiting on RustyK5</button>' :
+    '<button class="btn btn-spark" data-buy="build">I’ll take it — ' + money(b.ask) + '</button>';
+  return '<div class="screen">' +
+    '<div class="backrow"><button data-go="garage">← RustyK5’s garage</button></div>' +
+    '<div class="photo wide">' + glyph('truck') + '<span class="count">' + b.photos + ' photos</span></div>' +
+    '<h2 class="h-listing disp">' + b.title + '</h2>' +
+    '<div class="ask-row"><span class="lbl">Ask</span><span class="amt money">' + money(b.ask) + '</span></div>' +
+    '<p style="margin:0;font-size:.9rem">' + b.story + '</p>' +
+    '<h3 class="sect-h disp" style="font-size:1.05rem">Off this build</h3>' +
+    '<div class="strip-scroll">' + strip + '</div>' +
+    '<h3 class="sect-h disp" style="font-size:1.05rem">Build log</h3>' +
+    '<div class="timeline">' + b.updates.map(function (u) {
+      return '<div class="tl-item"><span class="dot"></span><span><span class="when">' + u.when + '</span><br>' + u.text + '</span></div>';
+    }).join('') + '</div>' +
+    '<p class="moneyline">You pay the seller. We don’t hold the money. Title and VIN are checked before this button arms.</p>' +
+    '<div>' + closer +
+      '<button class="btn btn-talk" data-talk="build" style="margin-top:.5rem">Talk</button>' +
+      '<p class="btn-note">Card on file. Buyer fee ' + feeLabel(b.ask) + ' (5%, capped at $5,000), charged only when the seller accepts.</p>' +
+    '</div>' +
+    '<div class="seller-row"><span class="avatar">RK</span><span><b>RustyK5</b><br><span class="loc">Des Moines, Iowa</span></span></div>' +
+  '</div>';
+}
+
+/* ---------- screen: part ---------- */
+function renderPart(id) {
+  var p = DB.parts[id] || S.benchExtra.filter(function (x) { return x.id === id; })[0];
+  if (!p) { return renderFeed(); }
+  var build = p.build ? DB.builds[p.build] : null;
+  var mine = S.myOffers.filter(function (o) { return o.part === p.id; })[0];
+
+  var closer;
+  if (p.status === 'sold') {
+    closer = '<button class="btn btn-dark" disabled>Sold — picked up at the garage</button>';
+  } else if (p.status === 'pending') {
+    closer = '<button class="btn btn-dark" disabled>Pending — spoken for</button>';
+  } else if (mine) {
+    closer = '<button class="btn btn-dark" disabled>Your offer is in — waiting on RustyK5</button>';
+  } else if (p.chargeReady && p.ask) {
+    closer = '<button class="btn btn-spark" data-buy="' + p.id + '">I’ll take it — ' + money(p.ask) + '</button>';
+  } else {
+    closer = (p.ask ? '' : '') + '<p class="plate-line">The part is here. The story is not.</p>' +
+      '<button class="btn btn-dark" disabled style="margin-top:.55rem">I’ll take it</button>';
+  }
+  var factRows =
+    '<div class="fact"><span class="lbl">What’s included</span><span class="val">' + esc(p.included) + '</span></div>' +
+    (p.condition ? '<div class="fact"><span class="lbl">Known issues</span><span class="val">' + esc(p.condition) + '</span></div>' : '') +
+    '<div class="fact"><span class="lbl">Pickup</span><span class="val">At the garage — Des Moines, Iowa</span></div>';
+
+  var note = (p.chargeReady && p.ask && !mine && p.status === 'on_bench') ?
+    '<p class="btn-note">Card on file. Buyer fee ' + feeLabel(p.ask) + ' (5%), charged only when the seller accepts.</p>' : '';
+
+  return '<div class="screen">' +
+    '<div class="backrow"><button data-go="garage" data-gtab-set="bench">← The bench</button></div>' +
+    '<div class="photo hero">' + glyph('wrench') + '<span class="count">' + p.photos + ' photo' + (p.photos === 1 ? '' : 's') + '</span></div>' +
+    '<h2 class="h-listing disp">' + esc(p.title) + '</h2>' +
+    '<p class="prov">' + p.prov + (build ? ' <button data-go="build">' + build.title + '</button>' : ' a build') + ' · RustyK5</p>' +
+    '<div class="facts">' + factRows + '</div>' +
+    '<p class="moneyline">You pay the seller. We don’t hold the part money. Here’s pickup.</p>' +
+    '<div>' + closer +
+      (p.status === 'on_bench' ? '<button class="btn btn-talk" data-talk="' + p.id + '" style="margin-top:.5rem">Talk</button>' : '') +
+      note + '</div>' +
+    '<div class="seller-row"><span class="avatar">RK</span><span><b>RustyK5</b><br><span class="loc">Des Moines, Iowa</span></span></div>' +
+  '</div>';
+}
+
+/* ---------- screen: sell (put it on the bench) ---------- */
+function formGate() {
+  var f = S.form;
+  var missing = [];
+  if (f.photos < 2) missing.push('photos (' + f.photos + ' of 2)');
+  if (!f.title.trim()) missing.push('what it is');
+  if (!f.prov) missing.push('where it’s been');
+  if (!f.included.trim()) missing.push('what’s included');
+  return missing;
+}
+function renderSell() {
+  var f = S.form;
+  var missing = formGate();
+  var factsIn = 3 - missing.filter(function (m) { return m.indexOf('photo') === -1; }).length;
+  var gateMsg;
+  if (missing.length === 0) {
+    gateMsg = 'All three facts in. It goes up as soon as you put it there.';
+  } else {
+    gateMsg = factsIn + ' of 3 facts in. Add ' + missing[0].replace(/ \(.*\)/, '') + ' — three facts or it doesn’t go up.';
+  }
+  var tiles = '';
+  for (var i = 0; i < 3; i++) {
+    tiles += i < f.photos ?
+      '<button class="tile filled" data-phototile>photo ' + (i + 1) + '</button>' :
+      '<button class="tile" data-phototile>+</button>';
+  }
+  return '<div class="screen">' +
+    '<div class="backrow"><button data-go="garage" data-gtab-set="bench">← The bench</button></div>' +
+    '<h2 class="sect-h disp">Put it on the bench</h2>' +
+    '<div class="field"><label>Photos — at least 2</label>' +
+      '<div class="photo-tiles">' + tiles + '</div>' +
+      '<p class="hint">One of the part. One next to something for scale. (Tap the tiles — the test site fakes the camera.)</p></div>' +
+    '<div class="field"><label for="f-title">What is it</label>' +
+      '<input class="input" id="f-title" value="' + esc(f.title) + '" placeholder="K5 tailgate, 73–87"></div>' +
+    '<div class="field"><label>Where’s it been</label>' +
+      '<div class="chips">' +
+        '<button class="chip ' + (f.prov === 'came_off' ? 'on' : '') + '" data-prov="came_off">Came off a build</button>' +
+        '<span class="chip later">Never went on</span><span class="chip later">Extra</span>' +
+      '</div><p class="hint">For now the bench takes take-offs. The rest comes later.</p></div>' +
+    (f.prov === 'came_off' ?
+      '<div class="field"><label for="f-build">Came off</label>' +
+      '<select class="input" id="f-build"><option>1972 K5 Blazer</option><option>1974 K10</option></select></div>' : '') +
+    '<div class="field"><label for="f-incl">What’s included</label>' +
+      '<textarea class="input" id="f-incl" placeholder="What comes with it — and what doesn’t (bolts, cables, trim)…">' + esc(f.included) + '</textarea></div>' +
+    '<div class="field"><label for="f-ask">Your ask — optional</label>' +
+      '<input class="input" id="f-ask" inputmode="numeric" value="' + esc(f.ask) + '" placeholder="$ 350">' +
+      '<p class="hint">No ask means people can talk to you, not buy.</p></div>' +
+    '<div><button class="btn ' + (missing.length === 0 ? 'btn-ink' : 'btn-dark') + '" data-submit-part ' + (missing.length === 0 ? '' : 'disabled') + '>Put it on the bench</button>' +
+    '<p class="btn-note">' + gateMsg + '</p></div>' +
+  '</div>';
+}
+
+/* ---------- screen: inbox ---------- */
+function renderInbox() {
+  var buyerCards = S.myOffers.length ? S.myOffers.map(function (o) {
+    var title = o.kind === 'build' ? DB.builds.blazer.title : (DB.parts[o.part] ? DB.parts[o.part].title : o.part);
+    var pill = o.status === 'accepted' ? '<span class="status-pill good">Accepted</span>' :
+               o.status === 'declined' ? '<span class="status-pill">Declined</span>' :
+               '<span class="status-pill">Waiting on seller</span>';
+    var tail = o.status === 'accepted' ?
+      '<p style="margin:0;font-size:.8rem;color:var(--muted)">Fee ' + feeLabel(o.amount) + ' charged. Pickup details are in Talk.</p>' :
+      '<p style="margin:0;font-size:.8rem;color:var(--muted)">Fee ' + feeLabel(o.amount) + ' charges only if RustyK5 accepts. Expires in 72 hours.</p>';
+    return '<div class="offer-card"><div class="row">' +
+      '<span class="avatar">RK</span>' +
+      '<span class="what"><b>' + esc(title) + '</b><br><span class="sub">RustyK5 · pickup at the garage</span></span>' +
+      '<span class="offer-amt money">' + money(o.amount) + '</span></div>' +
+      '<div class="row" style="justify-content:space-between">' + pill + '</div>' + tail + '</div>';
+  }).join('') : '<div class="empty">No offers out. An offer here is a commitment — the button only arms when the money would actually work.</div>';
+
+  var so = S.sellerOffer;
+  var sellerCard;
+  if (so.status === 'pending_seller') {
+    sellerCard = '<div class="offer-card"><div class="row">' +
+      '<span class="avatar">CJ</span>' +
+      '<span class="what"><b>' + esc(DB.parts[so.part].title) + '</b><br><span class="sub">' + esc(so.from) + ' · committed at your ask</span></span>' +
+      '<span class="offer-amt money">' + money(so.amount) + '</span></div>' +
+      '<p style="margin:0;font-size:.8rem;color:var(--muted)">Accept charges the buyer’s ' + feeLabel(so.amount) + ' fee and flips the part to pending. Decline puts it back on the bench, no charge.</p>' +
+      '<div class="offer-actions">' +
+        '<button class="btn btn-ink" data-accept style="font-size:.95rem;padding:.55rem">Accept</button>' +
+        '<button class="btn btn-line" data-decline>Decline</button>' +
+      '</div></div>';
+  } else if (so.status === 'accepted') {
+    sellerCard = '<div class="offer-card"><div class="row">' +
+      '<span class="avatar">CJ</span>' +
+      '<span class="what"><b>' + esc(DB.parts[so.part].title) + '</b><br><span class="sub">' + esc(so.from) + '</span></span>' +
+      '<span class="status-pill good">Accepted</span></div>' +
+      '<p style="margin:0;font-size:.8rem;color:var(--muted)">Buyer fee ' + feeLabel(so.amount) + ' charged. The part shows Pending on your bench until pickup. You collect ' + money(so.amount) + ' at the garage.</p></div>';
+  } else {
+    sellerCard = '<div class="offer-card"><div class="row">' +
+      '<span class="avatar">CJ</span>' +
+      '<span class="what"><b>' + esc(DB.parts[so.part].title) + '</b><br><span class="sub">' + esc(so.from) + '</span></span>' +
+      '<span class="status-pill">Declined</span></div>' +
+      '<p style="margin:0;font-size:.8rem;color:var(--muted)">No charge to anyone. The part is back on the bench.</p></div>';
+  }
+
+  return '<div class="screen">' +
+    '<h2 class="sect-h disp">Offers</h2>' +
+    '<p class="sect-sub">One closer, both directions. Nobody’s money is held by the platform — ever.</p>' +
+    '<h3 class="sect-h disp" style="font-size:1rem">Yours out</h3>' + buyerCards +
+    '<h3 class="sect-h disp" style="font-size:1rem;margin-top:.4rem">On your bench</h3>' + sellerCard +
+  '</div>';
+}
+
+/* ---------- screen: admin (placeholder for the in-flight session) ---------- */
+function renderAdmin() {
+  return '<div class="screen">' +
+    '<div class="backrow"><button data-go="about">← About this test site</button></div>' +
+    '<h2 class="sect-h disp">Admin</h2>' +
+    '<p class="previewband">The real admin build is still in flight in its own work session. This screen is the assembly placeholder, shaped to the audit’s test data, so the slot is visible in the walkthrough.</p>' +
+    '<div class="admin-stats">' +
+      '<div class="stat"><span class="n">3</span><span class="l">Garages</span></div>' +
+      '<div class="stat"><span class="n">5</span><span class="l">Parts up</span></div>' +
+      '<div class="stat"><span class="n">1</span><span class="l">Sold</span></div>' +
+    '</div>' +
+    '<h3 class="sect-h disp" style="font-size:1rem">Needs a look</h3>' +
+    '<div class="qrow"><span class="what"><b>Photo parity call (A10)</b><br><span class="sub">Car money gate arms at 1 photo; the wizard and parts demand 2. One-line change — owner decision.</span></span></div>' +
+    '<div class="qrow"><span class="what"><b>Part offers in /offers inbox (A7)</b><br><span class="sub">Show the part title, not a bare “Listing.” Fixed in this walkthrough; port to the app.</span></span></div>' +
+    '<div class="qrow"><span class="what"><b>/part pages in the sitemap (A8)</b><br><span class="sub">Discovered in the audit, not yet done.</span></span></div>' +
+    '<h3 class="sect-h disp" style="font-size:1rem">Limits in force</h3>' +
+    '<div class="qrow"><span class="what"><b>50 active parts per garage</b><br><span class="sub">Sold history exempt. “The bench is full” message ships with it.</span></span></div>' +
+  '</div>';
+}
+
+/* ---------- screen: about ---------- */
+function renderAbout() {
+  return '<div class="screen about">' +
+    '<h2 class="sect-h disp">What this is</h2>' +
+    '<p>Every finished piece of the Sell My Project work, assembled into one walkthrough you can tap through on a phone: the garage-first feed, RustyK5’s garage and bench, the Blazer’s page with its take-offs riding along, both closer states, the gated two-minute form, and the offers loop.</p>' +
+    '<p>Colors, type, and rules are the site’s own — the palette is lifted verbatim from <b>smp-web</b>, and orange appears once per screen at most, only on a closer the server has armed.</p>' +
+
+    '<h3 class="sect-h disp" style="font-size:1rem">The team’s workstreams</h3>' +
+    '<div class="ledger">' +
+      '<div class="lrow"><span class="k">Parts V1 spec — the bench, one closer, no second store</span><span class="v done">Done</span></div>' +
+      '<div class="lrow"><span class="k">Backend — BenchParts, close gate, reserve-first Accept, 5% fee</span><span class="v done">Built &amp; audited</span></div>' +
+      '<div class="lrow"><span class="k">Phone mockups on the real palette</span><span class="v done">Done</span></div>' +
+      '<div class="lrow"><span class="k">Full-system audit — 18 adversarial tests over real HTTP</span><span class="v done">Done</span></div>' +
+      '<div class="lrow"><span class="k">Admin page</span><span class="v">In flight — placeholder here</span></div>' +
+      '<div class="lrow"><span class="k">Grok bot</span><span class="v">In flight — not in this site</span></div>' +
+    '</div>' +
+    '<button class="btn btn-line" data-go="admin">See the admin placeholder</button>' +
+
+    '<h3 class="sect-h disp" style="font-size:1rem">The audit’s verdict</h3>' +
+    '<div class="scorebox"><span class="big">8.0</span><span class="cap">of 10 — “ready for controlled staging.” What’s left isn’t code: a human walk of the signed-in screens, photo upload on staging, one test-mode charge, and the ship order.</span></div>' +
+
+    '<h3 class="sect-h disp" style="font-size:1rem">The locked rules this site honors</h3>' +
+    '<div class="ledger">' +
+      '<div class="lrow"><span class="k">Seller fee</span><span class="v">$0, forever</span></div>' +
+      '<div class="lrow"><span class="k">Buyer fee</span><span class="v">5% on Accept, cap $5,000</span></div>' +
+      '<div class="lrow"><span class="k">Who holds the money</span><span class="v">Nobody — you pay the seller</span></div>' +
+      '<div class="lrow"><span class="k">Parts discovery</span><span class="v">The garage and the build — no mall, no cart, no parts nav</span></div>' +
+      '<div class="lrow"><span class="k">Three facts or it doesn’t go up</span><span class="v">Photos · what · where · included</span></div>' +
+      '<div class="lrow"><span class="k">Sold parts stay visible</span><span class="v">A bench with sold tags moves parts</span></div>' +
+    '</div>' +
+
+    '<h3 class="sect-h disp" style="font-size:1rem">Honest about the fakes</h3>' +
+    '<p>Photos are placeholders (the mock has no real uploads), the camera and card are simulated, and nothing here touches the real backend — the rows mirror the dev database the audit verified. When the admin and bot sessions land their work, this site gets their screens too.</p>' +
+  '</div>';
+}
+
+/* ---------- overlay sheets ---------- */
+function openSheet(html) {
+  $('#overlay').innerHTML = '<div class="sheet-veil" data-veil><div class="sheet" role="dialog" aria-modal="true">' + html + '</div></div>';
+}
+function closeSheet() { $('#overlay').innerHTML = ''; }
+
+function buySheet(target) {
+  var isBuild = target === 'build';
+  var title = isBuild ? DB.builds.blazer.title : DB.parts[target].title;
+  var amount = isBuild ? DB.builds.blazer.ask : DB.parts[target].ask;
+  openSheet(
+    '<h3 class="disp">I’ll take it — ' + money(amount) + '</h3>' +
+    '<p>You’re committing to <b>' + esc(title) + '</b> at the seller’s ask. The server takes this number and no other.</p>' +
+    '<div class="facts">' +
+      '<div class="fact"><span class="lbl">You pay the seller</span><span class="val money">' + money(amount) + ' at pickup — the platform never holds it</span></div>' +
+      '<div class="fact"><span class="lbl">Buyer fee — card on file</span><span class="val">' + feeLabel(amount) + ' (5%' + (feeCents(amount) >= 5000 ? ', capped' : '') + '), charged only when RustyK5 accepts</span></div>' +
+    '</div>' +
+    '<button class="btn btn-spark" data-commit="' + target + '">Commit — ' + money(amount) + '</button>' +
+    '<button class="btn btn-line" data-close>Not yet</button>'
+  );
+}
+
+function talkSheet(target) {
+  var isBuild = target === 'build';
+  var title = isBuild ? DB.builds.blazer.title : DB.parts[target].title;
+  openSheet(
+    '<h3 class="disp">Talk · ' + esc(title) + '</h3>' +
+    '<div class="talk-thread">' +
+      '<div class="msg me"><span class="who">You</span>Would you do $300 on the tailgate if I pick up this weekend?</div>' +
+      '<div class="msg"><span class="who">RustyK5</span>$325 and it’s yours Saturday morning. Bring a friend — it’s heavier than it looks.</div>' +
+      '<div class="msg me"><span class="who">You</span>Deal at $325.</div>' +
+      '<div class="msg"><span class="who">RustyK5</span>I’ll accept at $325 on my end — your fee runs on that number, not the ask.</div>' +
+    '</div>' +
+    '<p class="hint" style="margin:0">A different number lives in Talk; the seller says yes or no. Accept charges 5% of the agreed number. In the test site the thread is canned.</p>' +
+    '<button class="btn btn-line" data-close>Close</button>'
+  );
+}
+
+/* ---------- render + wire ---------- */
+function render() {
+  var m = $('#main');
+  var s = S.screen;
+  if (s === 'feed') m.innerHTML = renderFeed();
+  else if (s === 'garage') m.innerHTML = renderGarage();
+  else if (s === 'build') m.innerHTML = renderBuild();
+  else if (s === 'sell') m.innerHTML = renderSell();
+  else if (s === 'inbox') m.innerHTML = renderInbox();
+  else if (s === 'admin') m.innerHTML = renderAdmin();
+  else if (s === 'about') m.innerHTML = renderAbout();
+  else if (s.indexOf('part:') === 0) m.innerHTML = renderPart(s.slice(5));
+  else m.innerHTML = renderFeed();
+
+  document.querySelectorAll('nav.tabs button').forEach(function (b) {
+    var nav = b.getAttribute('data-nav');
+    var on = nav === s || (nav === 'garage' && (s === 'build' || s.indexOf('part:') === 0)) ||
+             (nav === 'sellmenu' && s === 'sell') || (nav === 'about' && s === 'admin');
+    b.classList.toggle('on', on);
+  });
+}
+
+document.addEventListener('click', function (e) {
+  var t = e.target.closest('button, [data-veil]');
+  if (!t) return;
+
+  if (t.hasAttribute('data-veil') && !e.target.closest('.sheet')) { closeSheet(); return; }
+  if (t.hasAttribute('data-close')) { closeSheet(); return; }
+
+  var nav = t.getAttribute('data-nav');
+  if (nav) {
+    if (nav === 'sellmenu') {
+      openSheet(
+        '<h3 class="disp">Post</h3>' +
+        '<button class="btn btn-line" data-go="sell">Put a part on the bench</button>' +
+        '<button class="btn btn-dark" disabled>Post a build update — with the feed work</button>' +
+        '<button class="btn btn-line" data-close>Close</button>'
+      );
+    } else { go(nav); }
+    return;
+  }
+
+  if (t.hasAttribute('data-go')) {
+    var dest = t.getAttribute('data-go');
+    if (t.hasAttribute('data-gtab-set')) S.garageTab = t.getAttribute('data-gtab-set');
+    closeSheet(); go(dest); return;
+  }
+  if (t.hasAttribute('data-part')) { go('part:' + t.getAttribute('data-part')); return; }
+  if (t.hasAttribute('data-gtab')) { S.garageTab = t.getAttribute('data-gtab'); render(); return; }
+
+  if (t.hasAttribute('data-follow')) {
+    var g = DB.garages[t.getAttribute('data-follow')];
+    g.following = !g.following;
+    g.followers += g.following ? 1 : -1;
+    render();
+    toast(g.following ? 'Following ' + g.name : 'Unfollowed ' + g.name);
+    return;
+  }
+
+  if (t.hasAttribute('data-buy')) { buySheet(t.getAttribute('data-buy')); return; }
+  if (t.hasAttribute('data-talk')) { talkSheet(t.getAttribute('data-talk')); return; }
+
+  if (t.hasAttribute('data-commit')) {
+    var target = t.getAttribute('data-commit');
+    if (target === 'build') {
+      S.myOffers.push({ kind: 'build', part: null, amount: DB.builds.blazer.ask, status: 'pending_seller' });
+    } else {
+      S.myOffers.push({ kind: 'part', part: target, amount: DB.parts[target].ask, status: 'pending_seller' });
+    }
+    closeSheet(); render();
+    toast('Offer in. Nothing charges until the seller accepts.');
+    return;
+  }
+
+  if (t.hasAttribute('data-accept')) {
+    S.sellerOffer.status = 'accepted';
+    DB.parts[S.sellerOffer.part].status = 'pending';
+    render();
+    toast('Accepted. Buyer’s ' + feeLabel(S.sellerOffer.amount) + ' fee charged — part is pending pickup.');
+    return;
+  }
+  if (t.hasAttribute('data-decline')) {
+    S.sellerOffer.status = 'declined';
+    render();
+    toast('Declined. No charge — the part stays on the bench.');
+    return;
+  }
+
+  if (t.hasAttribute('data-phototile')) {
+    S.form.photos = S.form.photos >= 3 ? 0 : S.form.photos + 1;
+    syncFormFromDom(); render(); return;
+  }
+  if (t.hasAttribute('data-prov')) {
+    S.form.prov = S.form.prov === 'came_off' ? null : 'came_off';
+    syncFormFromDom(); render(); return;
+  }
+  if (t.hasAttribute('data-submit-part')) {
+    if (formGate().length) return;
+    var askNum = parseInt(String(S.form.ask).replace(/[^0-9]/g, ''), 10);
+    var id = 'new' + (S.benchExtra.length + 1);
+    S.benchExtra.push({
+      id: id, garage: 'rustyk5', build: 'blazer', title: S.form.title.trim(), prov: 'Came off',
+      photos: S.form.photos, included: S.form.included.trim(), condition: null,
+      ask: isNaN(askNum) || askNum < 1 ? null : askNum,
+      status: 'on_bench', chargeReady: !isNaN(askNum) && askNum >= 1
+    });
+    S.form = { photos: 0, title: '', prov: null, included: '', ask: '' };
+    S.garageTab = 'bench';
+    go('garage');
+    toast('It’s on the bench.');
+    return;
+  }
+});
+
+function syncFormFromDom() {
+  var t = $('#f-title'), i = $('#f-incl'), a = $('#f-ask');
+  if (t) S.form.title = t.value;
+  if (i) S.form.included = i.value;
+  if (a) S.form.ask = a.value;
+}
+document.addEventListener('input', function (e) {
+  if (e.target.matches('#f-title, #f-incl, #f-ask')) {
+    syncFormFromDom();
+    /* re-render only the gate line + button so typing isn't interrupted */
+    var missing = formGate();
+    var btn = document.querySelector('[data-submit-part]');
+    var note = btn && btn.nextElementSibling;
+    if (btn) {
+      btn.className = 'btn ' + (missing.length === 0 ? 'btn-ink' : 'btn-dark');
+      if (missing.length === 0) btn.removeAttribute('disabled'); else btn.setAttribute('disabled', '');
+    }
+    if (note) {
+      var factsIn = 3 - missing.filter(function (m) { return m.indexOf('photo') === -1; }).length;
+      note.textContent = missing.length === 0 ?
+        'All three facts in. It goes up as soon as you put it there.' :
+        factsIn + ' of 3 facts in. Add ' + missing[0].replace(/ \(.*\)/, '') + ' — three facts or it doesn’t go up.';
+    }
+  }
+});
+
+render();
+</script>
+
+</body>
+</html>
